@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://* 'unsafe-inline' 'unsafe-eval'; script-src 'self' https://* 'unsafe-inline' 'unsafe-eval'">
+    <link rel="stylesheet" href="styles/styles.css">
+    <script src="https://kit.fontawesome.com/7f891c296a.js" crossorigin="anonymous"></script>
+
+    <title>Youtube Downloader</title>
+</head>
+<body>
+    
+    <div id="input-group">
+        <select name="format" id="sel-format">
+            <option value="mp3">MP3</option>
+            <option value="mp4">MP4</option>
+        </select>
+        <input id="input-url" type="text" placeholder="Paste youtube URL">
+
+        
+        <div class="input-playlist">
+            <input type="checkbox" id="checkbox-playlist">
+            <label id="label-playlist">Playlist</label>
+        </div>
+    </div>
+    
+
+    <div class="wrapper">
+        <button id="btn-download" ><i class="fa fa-download"></i> </button>
+    </div>
+
+    
+    <div class="status">
+        <p id="url-stat"></p>
+    </div>
+
+    <script src="javascripts/downloader.js" async></script>
+</body>
+</html>

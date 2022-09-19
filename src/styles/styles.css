@@ -1,0 +1,135 @@
+:root{
+    --cyan: rgb(40, 155, 190);
+    --darker-cyan: rgb(26, 126, 156);
+}
+
+body{
+    background-color: #313131;
+}
+
+#input-group{
+    position: absolute;
+    top: 30%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    width: 700px;
+    display: flex;
+}
+
+
+#input-url{
+    display: flex;
+    font-size: 18px;
+    box-sizing: border-box;
+    width: 450px;
+    height:30px;
+    border-radius: 3px;
+    border : 1px var(--cyan) solid;
+    background-color: rgb(59, 59, 59);
+    color: white;
+    margin-top: 3px;
+}
+
+#input-url:focus,
+#input-url::after{
+    border-color: var(--darker-cyan);
+    outline: none;
+}
+
+#input-url:hover{
+    border-color: var(--darker-cyan);
+}
+
+#sel-format{
+    right: 5px;
+    font-size: 18px;
+    position: relative;
+    width:100px;
+    height:30px;
+    border-radius: 3px;
+    border : 1px var(--cyan) solid;
+    vertical-align:top;
+    background-color: rgb(59, 59, 59);
+    color: white;
+    margin-top: 3px;
+}
+
+#sel-format:focus,
+#sel-format::after{
+    border-color: var(--cyan);
+    outline: none;
+}
+
+.wrapper{
+    margin-top: 15px;
+    text-align: center;
+}
+
+#btn-download {
+    background: var(--cyan);
+    border: 1px solid var(--cyan);
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 16px;
+    min-height: 40px;
+    outline: 0;
+    padding: 12px 14px;
+    text-transform: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    width: 620px;
+    margin-top: 120px;
+}
+
+#btn-download:hover,
+#btn-download:active {
+    background-color: var(--darker-cyan);
+    background-position: 0 0;
+    
+}
+
+#btn-download:active {
+    background-color: rgb(16, 72, 88);
+}
+
+#checkbox-playlist{
+    display: inline-block;
+    vertical-align: middle;
+    
+}
+
+
+
+input[type='checkbox'] {
+    -webkit-appearance:none;
+    width:30px;
+    height:30px;
+    background: rgb(59, 59, 59);
+    border-radius:5px;
+    border: 1px solid rgb(40, 155, 190);
+}
+input[type='checkbox']:hover {
+    background: rgb(28, 126, 156);
+}
+input[type='checkbox']:checked {
+    background: rgb(40, 155, 190);
+}
+
+#label-playlist{
+    color: white;
+    font-size: 18px;
+}
+
+.status{
+    position: absolute;
+    bottom: 0;
+}
+
+.status p{
+    color: white;
+}

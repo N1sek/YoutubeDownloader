@@ -1,0 +1,48 @@
+{
+  "name": "electronyoutubedownloader",
+  "productName": "ElectronYoutubeDownloader",
+  "version": "1.0.0",
+  "description": "Youtube downloader made with electron. Easily download youtube videos or playlists to mp3 or mp4",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:linux": "electron-builder --linux"
+  },
+  "repository": "https://github.com/N1sek/YoutubeDownloader",
+  "keywords": [
+    "YoutubeDownloader",
+    "YoutubeConverter",
+    "Converter",
+    "Downloader",
+    "Youtube",
+    "MP3",
+    "MP4",
+    "playlists"
+  ],
+  "author": "DenisC. <denisrobcizma@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^20.1.4",
+    "electron-builder": "^23.3.3",
+    "electron-reloader": "^1.2.3"
+  },
+  "dependencies": {
+    "electron-context-menu": "^3.5.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "ytdl-core": "^4.11.2",
+    "ytpl": "^2.3.0"
+  },
+  "build": {
+    "appId": "com.electronyoutubedownloader.app",
+    "linux": {
+      "target": [
+        "deb",
+        "snap",
+        "rpm",
+        "pacman"
+      ],
+      "icon": "resources/icons",
+      "category": "Productivity"
+    }
+  }
+}
