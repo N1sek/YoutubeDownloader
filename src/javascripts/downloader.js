@@ -117,3 +117,5 @@ function download() {
     }
     
 }
+
+//When select directory button is clicked, open directory picker

@@ -36,7 +36,6 @@
   "build": {
     "appId": "com.electronyoutubedownloader.app",
     "linux": {
-
       "icon": "resources/icons",
       "category": "Productivity"
     }
