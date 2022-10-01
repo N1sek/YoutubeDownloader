@@ -65,6 +65,31 @@ body{
     text-align: center;
 }
 
+#sel-dir{
+    background: var(--cyan);
+    border: 1px solid var(--cyan);
+    border-radius: 6px;
+    box-shadow: rgba(0, 0, 0, 0.1) 1px 2px 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 16px;
+    min-height: 40px;
+    outline: 0;
+    padding: 12px 14px;
+}
+#sel-dir:hover,
+#sel-dir:active {
+    background-color: var(--darker-cyan);
+    background-position: 0 0;
+    
+}
+
+#sel-dir:active {
+    background-color: rgb(16, 72, 88);
+}
+
 #btn-download {
     background: var(--cyan);
     border: 1px solid var(--cyan);
@@ -82,8 +107,8 @@ body{
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    width: 620px;
-    margin-top: 120px;
+    width: 400px;
+    margin-top: 60vh;
 }
 
 #btn-download:hover,
@@ -95,6 +120,11 @@ body{
 
 #btn-download:active {
     background-color: rgb(16, 72, 88);
+}
+
+.disabled{
+    pointer-events: none;
+    background-color: rgb(16, 72, 88) !important;
 }
 
 #checkbox-playlist{
@@ -131,5 +161,6 @@ input[type='checkbox']:checked {
 }
 
 .status p{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
     color: white;
 }
