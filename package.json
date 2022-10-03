@@ -1,7 +1,7 @@
 {
   "name": "electron-youtube-downloader",
   "productName": "ElectronYoutubeDownloader",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "summary": "Download youtube videos and playlists",
   "description": "Youtube downloader made with electron. Easily download youtube videos or playlists to mp3 or mp4",
   "main": "index.js",
