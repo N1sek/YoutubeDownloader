@@ -28,7 +28,9 @@
     "electron-reloader": "^1.2.3"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "electron-context-menu": "^3.5.0",
+    "ffmpeg-static": "^5.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "ytdl-core": "^4.11.2",
     "ytpl": "^2.3.0"
@@ -36,7 +38,6 @@
   "build": {
     "appId": "com.electronyoutubedownloader.app",
     "linux": {
-
       "icon": "resources/icons",
       "category": "Productivity"
     }
