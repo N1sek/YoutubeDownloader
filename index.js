@@ -1,6 +1,6 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, dialog, ipcMain } = require('electron')
 const contextMenu = require('electron-context-menu')
-const path = require('path')
+const path = require('path');
 
 try {
     require('electron-reloader')(module)
@@ -30,9 +30,24 @@ const createWindow = () => {
     win.setResizable(false);
     win.setMenuBarVisibility(false);
     win.loadFile('src/index.html');
-    //win.webContents.openDevTools();
+    win.webContents.openDevTools();
+
 }
 
-app.whenReady().then(() => {
-    createWindow()
+app.on('ready', createWindow)
+
+
+//If button is pressed then open dialog else do nothing
+ipcMain.on('open-dir', function (event) {
+    dialog.showOpenDialog({
+        properties: ['openDirectory'],
+        title: "Save Folder",
+        defaultPath: app.getPath("home")
+    }).then(result => {
+        event.sender.send('selected-dir', result.filePaths)
+    }).catch(err => {
+        console.log(err)
+    })
 })
+
+
