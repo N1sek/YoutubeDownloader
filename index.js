@@ -30,7 +30,7 @@ const createWindow = () => {
     win.setResizable(false);
     win.setMenuBarVisibility(false);
     win.loadFile('src/index.html');
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
 }
 
