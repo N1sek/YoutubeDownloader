@@ -9,13 +9,11 @@ const Ffmpeg = require('fluent-ffmpeg');
 const user = process.env.USER
 const buttonDownload = document.getElementById('btn-download')
 const urlStat = document.getElementById('url-stat')
-var defaultPath = '/home/' + user + '/YoutubeDownloads/'
+const defaultPath = '/home/' + user + '/YoutubeDownloads/'
 
 urlStat.innerText = "Default download path: ~/YoutubeDownloads/"
 
-if (!fs.existsSync(defaultPath)){
-    fs.mkdirSync(defaultPath);
-}
+
 
 //Disable the download button if the url is empty
 document.getElementById('input-url').addEventListener('input', function (event) {
@@ -25,27 +23,33 @@ document.getElementById('input-url').addEventListener('input', function (event) 
         buttonDownload.classList.remove("disabled")
     }
 })
-//Get selected-dir from IPC and save data to global variable
-ipcRenderer.on('selected-dir', (event, args) => {
-    var defaultPath = args[0] + "/"
-    urlStat.innerText = "Default download path: " + defaultPath
 
+//
+ipcRenderer.on('selected-dir', (event, args) => {
+    document.getElementById('sel-dir').value = args + '/'
 })
 
 //Download button
 buttonDownload.addEventListener('click', function (event) {
-    buttonDownload.classList.add("disabled")
-    buttonDownload.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Downloading...'
+    
+    var savePath = document.getElementById('sel-dir').value
+
+    if (savePath == ''){
+        savePath = defaultPath
+    }
+    
+    console.log(savePath)
+    buttonDownload.innerText = 'Downloading...'
     var url = document.getElementById('input-url').value
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
         convertVideo(url)
     } else if (document.getElementById('checkbox-playlist').checked) {
         convertPlaylist(url)
     } else {
-        alert("URL not supported")
-        buttonDownload.classList.remove("disabled")
-        buttonDownload.innerHTML = 'Download'
+        buttonDownload.innerText = 'URL not supported'
     }
+    
+    console.log()
 })
 
 //Download video

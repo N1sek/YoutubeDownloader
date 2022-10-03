@@ -38,7 +38,7 @@ const createWindow = () => {
 app.on('ready', createWindow)
 
 
-
+//If button is pressed then open dialog else do nothing
 ipcMain.on('open-dir', function (event) {
     dialog.showOpenDialog({
         properties: ['openDirectory'],
@@ -46,6 +46,8 @@ ipcMain.on('open-dir', function (event) {
         defaultPath: app.getPath("home")
     }).then(result => {
         event.sender.send('selected-dir', result.filePaths)
+    }).catch(err => {
+        console.log(err)
     })
 })
 
