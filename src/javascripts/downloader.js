@@ -24,7 +24,7 @@ document.getElementById('input-url').addEventListener('input', function (event) 
     }
 })
 
-//
+//Receive selected folder from ipcMain
 ipcRenderer.on('selected-dir', (event, args) => {
     document.getElementById('sel-dir').value = args + '/'
 })
@@ -36,6 +36,9 @@ buttonDownload.addEventListener('click', function (event) {
 
     if (savePath == ''){
         savePath = defaultPath
+        if (!fs.existsSync(savePath)){
+            fs.mkdirSync(savePath);
+        }
     }
     
     console.log(savePath)
@@ -48,8 +51,7 @@ buttonDownload.addEventListener('click', function (event) {
     } else {
         buttonDownload.innerText = 'URL not supported'
     }
-    
-    console.log()
+
 })
 
 //Download video
