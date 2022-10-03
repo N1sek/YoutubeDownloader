@@ -44,7 +44,7 @@ body{
     right: 5px;
     font-size: 18px;
     position: relative;
-    width:100px;
+    width:120px;
     height:30px;
     border-radius: 3px;
     border : 1px var(--cyan) solid;
@@ -61,8 +61,8 @@ body{
 }
 
 .wrapper{
-    margin-top: 5px;
-    text-align: center;
+    margin-top: -55px;
+    margin-left: 130px;
 }
 
 #sel-dir{
@@ -78,6 +78,7 @@ body{
     min-height: 40px;
     outline: 0;
     padding: 12px 14px;
+    width: 120px;
 }
 #sel-dir:hover,
 #sel-dir:active {
@@ -107,7 +108,7 @@ body{
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-    width: 400px;
+    width: 455px;
     margin-top: 60vh;
 }
 

@@ -1,10 +1,18 @@
 var { ipcRenderer } = require('electron');
 
+const cp = require('child_process');
+const readline = require('readline');
 const fs = require('fs');
 const ytdl = require('ytdl-core');
 const ytpl = require('ytpl')
 const Ffmpeg = require('fluent-ffmpeg');
-
+const ffmpegs = require('ffmpeg-static')
+const tracker = {
+    start: Date.now(),
+    audio: { downloaded: 0, total: Infinity },
+    video: { downloaded: 0, total: Infinity },
+    merged: { frame: 0, speed: '0x', fps: 0 },
+};
 
 const user = process.env.USER
 const buttonDownload = document.getElementById('btn-download')
@@ -21,91 +29,176 @@ document.getElementById('input-url').addEventListener('input', function (event) 
         buttonDownload.classList.add("disabled")
     } else {
         buttonDownload.classList.remove("disabled")
+        
     }
 })
 
-//Receive selected folder from ipcMain
-ipcRenderer.on('selected-dir', (event, args) => {
-    document.getElementById('sel-dir').value = args + '/'
-})
+
 
 //Download button
 buttonDownload.addEventListener('click', function (event) {
     
     var savePath = document.getElementById('sel-dir').value
-
-    if (savePath == ''){
+    
+    if (savePath == ""){
         savePath = defaultPath
+        urlStat.innerText = "Download path: " + savePath
         if (!fs.existsSync(savePath)){
             fs.mkdirSync(savePath);
         }
     }
-    
-    console.log(savePath)
-    buttonDownload.innerText = 'Downloading...'
+    //Check if youtube url is valid ytdl
+    urlStat.innerText = 'Downloading...'
     var url = document.getElementById('input-url').value
-    if (url.includes("youtube.com") || url.includes("youtu.be")) {
-        convertVideo(url)
+    if (ytdl.validateURL(url)) {
+        convertVideo(url, savePath)
     } else if (document.getElementById('checkbox-playlist').checked) {
-        convertPlaylist(url)
+        convertPlaylist(url, savePath)
     } else {
-        buttonDownload.innerText = 'URL not supported'
+        urlStat.innerText = 'URL not supported'
     }
 
 })
 
 //Download video
-function convertVideo(url) {
+function convertVideo(url, savePath,) {
     ytdl.getBasicInfo(url).then(info => {
         const format = document.getElementById('sel-format').value
         const title = info.videoDetails.title
-        const titleFixed = title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
         //Replace special chars
-        console.log(titleFixed)
+        const titleFixed = title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
         if (format === 'mp3'){
             const audioReadableStream = ytdl(url, { quality: 'highestaudio', filter: 'audioonly' })
             
             Ffmpeg(audioReadableStream)
-            .save(defaultPath + titleFixed + '.mp3')
+            .save(savePath + titleFixed + '.mp3')
             .on("end", () => {
-                urlStat.innerText = "Downloaded " + title
+                urlStat.innerText = "Downloaded " + '"' + title + '"'
             })
+        } else {
+            console.log(info.formats)
+
+            //Get audio and video streams, then merge them into one file
+            
+            const audio = ytdl(url, { quality: 'highestaudio' })
+                .on('progress', (_, downloaded, total) => {
+                    tracker.audio = { downloaded, total };
+                });
+            const video = ytdl(url, { quality: 'highestvideo' })
+                .on('progress', (_, downloaded, total) => {
+                    tracker.video = { downloaded, total };
+                });
+
+                const ffmpegProcess = cp.spawn(ffmpegs, [
+                    // Remove ffmpeg's console spamming
+                    '-loglevel', '8', '-hide_banner',
+                    // Redirect/Enable progress messages
+                    '-progress', 'pipe:3',
+                    // Set inputs
+                    '-i', 'pipe:4',
+                    '-i', 'pipe:5',
+                    // Map audio & video from streams
+                    '-map', '0:a',
+                    '-map', '1:v',
+                    // Keep encoding
+                    '-c:v', 'copy',
+                    // Define output file
+                    savePath + titleFixed + '.mp4',
+                ], {
+                    windowsHide: true,
+                    stdio: [
+                    /* Standard: stdin, stdout, stderr */
+                    'inherit', 'inherit', 'inherit',
+                    /* Custom: pipe:3, pipe:4, pipe:5 */
+                    'pipe', 'pipe', 'pipe',
+                    ],
+                });
+                ffmpegProcess.on('close', () => {
+                    urlStat.innerText = "Downloaded " + '"' + title + '"' ;
+                    // Cleanup
+                    process.stdout.write('\n\n\n\n');
+                });
+
+                audio.pipe(ffmpegProcess.stdio[4]);
+                video.pipe(ffmpegProcess.stdio[5]);
+            
         }
     })
+    // .catch (err => {
+    //     console.log(err)
+    // })
 }
 
 //Download playlist
-function convertPlaylist(url) {
-    ytpl(url, (err, playlist) => {
-        if (err) throw err;
-        var title = playlist.title
-        var videos = playlist.items
-        var output = defaultPath + title
-        if (!fs.existsSync(output)){
-            fs.mkdirSync(output);
+function convertPlaylist(url, savePath) {
+    //Validate playlist url
+    // if (!ytpl.validateURL(url)){
+    //     urlStat.innerText = 'Invalid playlist URL'
+    //     return
+    // }
+    
+    ytpl(url).then(playlist => {
+        const format = document.getElementById('sel-format').value
+        const title = playlist.title
+        const videos = playlist.items
+        if (format === 'mp3'){
+            for (let i = 0; i < videos.length; i++) {
+                const audioReadableStream = ytdl(videos[i].shortUrl, { quality: 'highestaudio', filter: 'audioonly' })
+                const titleFixed = videos[i].title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                Ffmpeg(audioReadableStream)
+                .save(savePath + titleFixed + '.mp3')
+                .on("end", () => {
+                    urlStat.innerText = "Downloaded " + '"' + title + ' Playlist"'
+                })
+            }
+        } else {
+            for (let i = 0; i < videos.length; i++) {
+                //Get audio and video streams, then merge them into one file
+                const titleFixed = videos[i].title.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                const audio = ytdl(videos[i].shortUrl, { quality: 'highestaudio' })
+                    .on('progress', (_, downloaded, total) => {
+                        tracker.audio = { downloaded, total };
+                    });
+                const video = ytdl(videos[i].shortUrl, { quality: 'highestvideo' })
+                    .on('progress', (_, downloaded, total) => {
+                        tracker.video = { downloaded, total };
+                    });
+
+                const ffmpegProcess = cp.spawn(ffmpegs, [
+                    // Remove ffmpeg's console spamming
+                    '-loglevel', '8', '-hide_banner',
+                    // Redirect/Enable progress messages
+                    '-progress', 'pipe:3',
+                    // Set inputs
+                    '-i', 'pipe:4',
+                    '-i', 'pipe:5',
+                    // Map audio & video from streams
+                    '-map', '0:a',
+                    '-map', '1:v',
+                    // Keep encoding
+                    '-c:v', 'copy',
+                    // Define output file
+                    defaultPath + titleFixed + '.mp4',
+                ], {
+                    windowsHide: true,
+                    stdio: [
+                    /* Standard: stdin, stdout, stderr */
+                    'inherit', 'inherit', 'inherit',
+                    /* Custom: pipe:3, pipe:4, pipe:5 */
+                    'pipe', 'pipe', 'pipe',
+                    ],
+                });
+                ffmpegProcess.on('close', () => {
+                    urlStat.innerText = "Downloaded " + '"' + title + ' Playlist"' ;
+                    // Cleanup
+                    process.stdout.write('\n\n\n\n');
+                });
+
+                audio.pipe(ffmpegProcess.stdio[4]);
+                video.pipe(ffmpegProcess.stdio[5]);
+            }
         }
-        for (let i = 0; i < videos.length; i++) {
-            var video = ytdl(videos[i].shortUrl, {
-                quality: 'highestaudio'
-            });
-            var proc = new Ffmpeg({
-                    source: video
-                })
-                .audioCodec('libmp3lame')
-                .audioBitrate(320)
-                .audioChannels(2)
-                .format('mp3')
-                .on('error', function (err) {
-                    console.log('An error occurred: ' + err.message);
-                })
-                .on('end', function () {
-                    buttonDownload.classList.remove("disabled")
-                    buttonDownload.innerHTML = 'Download'
-                    alert("Downloaded: " + title)
-                })
-                .save(output);
-        }
-    });
+    })
 }
 
 // //If ipcRenderer doesnt get data then set defaultPath
@@ -190,25 +283,25 @@ function convertPlaylist(url) {
 //         if (document.getElementById('checkbox-playlist').checked) {
 
 //             // Get playlist ID and validate
-//             const playlistId = ytpl.getPlaylistID(url)
+            // const playlistId = ytpl.getPlaylistID(url)
             
-//             playlistId.then(result => {
+            // playlistId.then(result => {
 
                 
-//                 if (ytpl.validateID(result) == false) {
-//                     urlStat.innerText = "Invalid playlist"
-//                     return
-//                 } else {
-//                     urlStat.innerText = ""
-//                     //Loop trough every video in playlist
-//                     ytpl(result, {limit: Infinity, pages: Infinity}).then(result => {
-//                         for (var i = 0; i < result.items.length; i++) {
-//                             var videoID = result.items[i].id
-//                             var videoURL = 'https://www.youtube.com/watch?v=' + videoID
-//                             saveDownload(videoURL)
-//                         }
-//                     })
-//                 }
+            //     if (ytpl.validateID(result) == false) {
+            //         urlStat.innerText = "Invalid playlist"
+            //         return
+            //     } else {
+            //         urlStat.innerText = ""
+            //         //Loop trough every video in playlist
+            //         ytpl(result, {limit: Infinity, pages: Infinity}).then(result => {
+            //             for (var i = 0; i < result.items.length; i++) {
+            //                 var videoID = result.items[i].id
+            //                 var videoURL = 'https://www.youtube.com/watch?v=' + videoID
+            //                 saveDownload(videoURL)
+            //             }
+            //         })
+            //     }
                 
 //             })
             
